@@ -25,10 +25,13 @@ public class SkipList<EType extends Comparable<EType>> extends SkipListNode<ETyp
     private final Random rng_;
     private final SkipListNode<EType>[] searchTrail_;
 
+
+    
     /*
      ** Constructor.
      */
-    public SkipList()
+    @SuppressWarnings("unchecked")
+	public SkipList()
     {
         super(MAX_LEVEL);
 
@@ -39,7 +42,7 @@ public class SkipList<EType extends Comparable<EType>> extends SkipListNode<ETyp
 
         for (int i = 1; i <= MAX_LEVEL; i++)
         {
-            setForwardPtr(i, null);
+            setForwardPtr(i, null, 0);
         }
     }
 
@@ -101,15 +104,23 @@ public class SkipList<EType extends Comparable<EType>> extends SkipListNode<ETyp
         {
             do
             {
+            	//the next one is the literally the next one at this level...
                 next = current.forwardPtr(level);
+                
+                //then you check:
+                	//a) if its not null
+                	//b) if its smaller than the key 
                 moreLevel = next != null && key.compareTo(next.getData()) > 0;
                 if (moreLevel)
                 {
+                	//update
                     current = next;
                 }
-            }
+            }//and traverse
             while (moreLevel);
-
+            
+            //search trail contains all the head pointers in each level...
+            //meaning, the base pointer
             searchTrail_[level-1] = current;
         }
     }
@@ -192,15 +203,28 @@ public class SkipList<EType extends Comparable<EType>> extends SkipListNode<ETyp
             /*
              ** Fixup the lists at all levels.
              */
+            //if its a new level high then you want to assign it to the 'head' node of this skip list
             for (int level = newNode.levels(); level > maxLevel_; level--)
             {
                 setForwardPtr(level, newNode);
                 newNode.setForwardPtr(level, null);
             }
 
+            // if the nodes level is less than the existing maxLevel, iterate over the higher levels
+            // and increment the rank of each pointer that "bypasses" the new node
+            for (int level = maxLevel_; level > newNode.levels(); level--) {
+            	searchTrail_[level-1].incrementForwardPtr();
+            }
+            //which ever is SMALLER, the max level or the or the number of levels in the new node...
+            
             for (int level = Math.min(maxLevel_, newNode.levels()); level >= 1; level--)
             {
+            	//first you set the forward pointer of the new node 
+            	//uses the previous 'head' on each level, sets the new node's forward pointer to 
+            	//point to the future obj
                 newNode.setForwardPtr(level, searchTrail_[level-1].forwardPtr(level));
+                
+              
                 searchTrail_[level-1].setForwardPtr(level, newNode);
             }
             maxLevel_ = Math.max(maxLevel_, newNode.levels());

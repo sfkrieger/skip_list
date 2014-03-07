@@ -13,6 +13,11 @@ public class SkipListNode<ElementType extends Comparable<ElementType>>
     private int   level_;
     private ElementType data_;
     private SkipListNode<ElementType>[] forward_;
+    
+    /*
+     *Added vars 
+     */
+    private int[] relative_ranks;    
 
     /*
      ** Really ugly function to create an array of a (generic) type. Please
@@ -32,6 +37,7 @@ public class SkipListNode<ElementType extends Comparable<ElementType>>
     public SkipListNode(int l)
     {
         this(l, null);
+        
     }
 
     /**
@@ -45,6 +51,7 @@ public class SkipListNode<ElementType extends Comparable<ElementType>>
         level_ = l;
         data_ = key;
         forward_ = createArray(l, this);
+        this.relative_ranks = new int[l];
     }
 
     /**
@@ -80,9 +87,10 @@ public class SkipListNode<ElementType extends Comparable<ElementType>>
      * @param i the level we are looking at.
      * @param node the new "next node" at level i.
      */
-    public void setForwardPtr(int i, SkipListNode<ElementType> node)
+    public void setForwardPtr(int i, SkipListNode<ElementType> node, int rank)
     {
         forward_[i-1] = node;
+        this.relative_ranks[i-1] = rank;
     }
 
     /*

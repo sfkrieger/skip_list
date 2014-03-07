@@ -47,7 +47,10 @@ public class SkipListTest
         /*
          ** Declarations.
          */
+        //TODO: figure out what the deal is with this...
         boolean[]  inOut = new boolean[noElements * 2];
+        
+        //so the skiplist constructor just takes anything comparable and serializable i think
         SkipList<Integer> skiplist = new SkipList<Integer>();
 
         /*
